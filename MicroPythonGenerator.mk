@@ -42,6 +42,7 @@ MICROPYTHON_OPTIONS += $(PYTHON_OPTIONS)
 
 # Resolve some requried variables to make sure we compile with consistent configurations
 CPPFLAGS += $(MICROPYTHON_OPTIONS:%=-D%)
+INCLUDE_PATHS += $(MICROPYTHON_API_GENERATOR_DIR)/include
 INCLUDE_PATHS += $(MICROPYTHON_PATH)
 INCLUDE_PATHS += $(MICROPYTHON_PATH)/MicroPython
 INCLUDE_PATHS += $(MICROPYTHON_PATH)/MicroPython/ports

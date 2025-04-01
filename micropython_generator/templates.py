@@ -6,7 +6,7 @@ cpp_header = """// Auto-generated file, do not edit, your changes will be overri
 
 ${header_include:empty_no_line}
 ${header_dependency_includes:empty_no_line}
-#include "Scripting/System/TIScriptingUtilities.h"
+#include "HIMicroPythonGenerator.h"
 #include <memory>
 
 #if defined(_MSC_VER)
@@ -33,7 +33,7 @@ extern "C"
     ${extern_modules:keep_indent,empty_no_line}
 }
 
-namespace Tiny::Scripting::Utilities
+namespace Hel::MicroPython
 {
     ${type_converters:keep_indent,empty_no_line}
 }
@@ -50,7 +50,7 @@ cpp_source = """// Auto-generated file, do not edit, your changes will be overri
 ${primary_header_include:empty_no_line}
 ${header_include:empty_no_line}
 
-using namespace Tiny::Scripting::Utilities;
+using namespace Hel::MicroPython;
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -74,7 +74,7 @@ extern "C"
     ${custom_private_type_declarations:keep_indent,empty_no_line}
 }
 
-namespace Tiny::Scripting::Utilities
+namespace Hel::MicroPython
 {
     ${type_converters:keep_indent,empty_no_line}
 }
@@ -95,14 +95,14 @@ extern "C"
 cpp_dependency_include = "#include ${include}"
 
 cpp_function_return_void = "return mp_const_none;"
-cpp_function_return_result = "return TIPyType<${type}>::To(result);"
-cpp_function_outparam = "TIPyType<${type}>::To(${name})"
+cpp_function_return_result = "return HIPyType<${type}>::To(result);"
+cpp_function_outparam = "HIPyType<${type}>::To(${name})"
 cpp_function_return_outparam = """
 mp_obj_t outParams[] = {${out_params}};
 return mp_obj_new_tuple(${out_param_count}, outParams);
 """
 cpp_function_return_result_outparam = """
-mp_obj_t outParams[] = {TIPyType<${type}>::To(result), ${out_params}};
+mp_obj_t outParams[] = {HIPyType<${type}>::To(result), ${out_params}};
 return mp_obj_new_tuple(${out_param_count} + 1, outParams);
 """
 cpp_function_call_return = """
@@ -225,14 +225,14 @@ inline mp_obj_t Py${name}Impl(size_t n_args, const mp_obj_t *args, mp_map_t *kwa
     return MP_OBJ_NULL;
 }
 
-STATIC mp_obj_t Py${name}(size_t n_args, const mp_obj_t *args)
+static mp_obj_t Py${name}(size_t n_args, const mp_obj_t *args)
 {
     if (auto result = Py${name}Impl(n_args, args, nullptr); result != MP_OBJ_NULL) return result;
     ${base_calls:keep_indent,empty_no_line}
     mp_raise_TypeError("Invalid arguments");
     return mp_const_none;
 }
-//STATIC MP_DEFINE_CONST_FUN_OBJ_KW(Py${name}Obj, ${min_arg_count}, Py${name});
+//static MP_DEFINE_CONST_FUN_OBJ_KW(Py${name}Obj, ${min_arg_count}, Py${name});
 const mp_obj_fun_builtin_var_t Py${name}Obj = {{&mp_type_fun_builtin_var}, MP_OBJ_FUN_MAKE_SIG(${min_arg_count}, MP_OBJ_FUN_ARGS_MAX, true), .fun = {.kw = Py${name}}}
 """
 cpp_function_kwargs_overload_nooptionals = """
@@ -242,7 +242,7 @@ if (${overload_check})
     ${call_function:keep_indent}
 }
 """
-cpp_function_kwvarargs_check = "TIPyType<${type}>::Is(args[${arg_index}])"
+cpp_function_kwvarargs_check = "HIPyType<${type}>::Is(args[${arg_index}])"
 cpp_function_required_overload_nooptionals_check = "n_args == ${required_count} && ${arg_checks}"
 cpp_function_required_overload_withoptionals_check = "n_args >= ${required_count} && ${arg_checks}"
 cpp_function_kwargs_overload_withoptionals = """
@@ -256,7 +256,7 @@ if (${required_check})
     }
 }
 """
-cpp_function_kwarg_check = "${name}_obj_present && TIPyType<${type}>::Is(${name}_obj)"
+cpp_function_kwarg_check = "${name}_obj_present && HIPyType<${type}>::Is(${name}_obj)"
 cpp_function_kwarg_optional_check = "(kwargs_used == ${optional_count} && ${arg_checks})"
 cpp_function_kwarg_init_template = """
 mp_obj_t ${name}_obj = mp_const_none;
@@ -265,11 +265,11 @@ auto ${name}_obj_present = FindInMap(kwargs, \"${name}\", &${name}_obj);
 cpp_function_kwarg_init_with_default = """
 if (n_args > ${arg_index}) { ${name}_obj = args[${arg_index}]; ${name}_obj_present = true; }
 ${type} ${name} = ${default};
-if (${name}_obj_present) ${name} = TIPyType<${type}>::From(${name}_obj);
+if (${name}_obj_present) ${name} = HIPyType<${type}>::From(${name}_obj);
 """
 cpp_function_kwargs_init_required = """
 if (n_args > ${arg_index}) ${name}_obj = args[${arg_index}];
-auto ${name} = TIPyType<${type}>::From(${name}_obj);
+auto ${name} = HIPyType<${type}>::From(${name}_obj);
 """
 
 cpp_function_varargs = """
@@ -280,7 +280,7 @@ inline mp_obj_t Py${name}Impl(size_t n_args, const mp_obj_t *args)
     return MP_OBJ_NULL;
 }
 
-STATIC mp_obj_t Py${name}(size_t n_args, const mp_obj_t *args)
+static mp_obj_t Py${name}(size_t n_args, const mp_obj_t *args)
 {
     if (auto result = Py${name}Impl(n_args, args); result != MP_OBJ_NULL) return result;
     ${base_calls:keep_indent,empty_no_line}
@@ -292,9 +292,9 @@ const mp_obj_fun_builtin_var_t Py${name}Obj = {{&mp_type_fun_builtin_var}, MP_OB
 """
 cpp_function_varargs_init_withdefault = """
 ${type} ${name} = ${default};
-if (n_args > ${arg_index}) ${name} = TIPyType<${type}>::From(args[${arg_index}]);
+if (n_args > ${arg_index}) ${name} = HIPyType<${type}>::From(args[${arg_index}]);
 """
-cpp_function_init_required = """auto ${name} = TIPyType<${type}>::From(args[${arg_index}]);"""
+cpp_function_init_required = """auto ${name} = HIPyType<${type}>::From(args[${arg_index}]);"""
 cpp_function_varargs_overload = """
 if (${overload_check})
 {
@@ -303,8 +303,8 @@ if (${overload_check})
 }
 """
 
-cpp_function_fixed_init_arg = """auto ${name} = TIPyType<${type}>::From(${obj_name}_obj);"""
-cpp_function_fixed_args_check = "TIPyType<${type}>::Is(${name}_obj)"
+cpp_function_fixed_init_arg = """auto ${name} = HIPyType<${type}>::From(${obj_name}_obj);"""
+cpp_function_fixed_args_check = "HIPyType<${type}>::Is(${name}_obj)"
 cpp_function_fixed_overload = """
 if (${overload_check})
 {
@@ -322,7 +322,7 @@ inline mp_obj_t Py${name}Impl(${args})
     return MP_OBJ_NULL;
 }
 
-STATIC mp_obj_t Py${name}(${args})
+static mp_obj_t Py${name}(${args})
 {
     if (auto result = Py${name}Impl(${arg_names}); result != MP_OBJ_NULL) return result;
     ${base_calls:keep_indent,empty_no_line}
@@ -330,20 +330,20 @@ STATIC mp_obj_t Py${name}(${args})
     return mp_const_none;
 }
 //MP_DEFINE_CONST_FUN_OBJ_${arg_count}(Py${name}Obj, Py${name});
-STATIC const mp_obj_fun_builtin_fixed_t Py${name}Obj = {{&mp_type_fun_builtin_${arg_count}}, .fun = {._${arg_count} = Py${name}}};
+static const mp_obj_fun_builtin_fixed_t Py${name}Obj = {{&mp_type_fun_builtin_${arg_count}}, .fun = {._${arg_count} = Py${name}}};
 """
 cpp_function_fixed_unchecked = """
-STATIC mp_obj_t Py${name}(${args})
+static mp_obj_t Py${name}(${args})
 {
     ${self_init:keep_indent,empty_no_line}
     ${args_init:keep_indent,empty_no_line}
     ${call_function:keep_indent}
 }
 //MP_DEFINE_CONST_FUN_OBJ_${arg_count}(Py${name}Obj, Py${name});
-STATIC const mp_obj_fun_builtin_fixed_t Py${name}Obj = {{&mp_type_fun_builtin_${arg_count}}, .fun = {._${arg_count} = Py${name}}};
+static const mp_obj_fun_builtin_fixed_t Py${name}Obj = {{&mp_type_fun_builtin_${arg_count}}, .fun = {._${arg_count} = Py${name}}};
 """
 cpp_function_fixed_unchecked_long = """
-STATIC mp_obj_t Py${name}(size_t n_args, const mp_obj_t *args)
+static mp_obj_t Py${name}(size_t n_args, const mp_obj_t *args)
 {
     ${self_init:keep_indent,empty_no_line}
     ${args_init:keep_indent,empty_no_line}
@@ -354,34 +354,34 @@ const mp_obj_fun_builtin_var_t Py${name}Obj = {{&mp_type_fun_builtin_var}, MP_OB
 """
 
 cpp_custom_type_header_declaration_template = """
-struct Py${name} : public Tiny::Scripting::Utilities::TIPythonObjectType<${type_name}>
+struct Py${name} : public Hel::MicroPython::HIPythonObjectType<${type_name}>
 { static const mp_obj_type_t PyType; };
-STATIC mp_obj_t PyMake${name}(${type_name} value);
-STATIC mp_obj_t Py${name}Init(const mp_obj_type_t* type, size_t n_args, size_t, size_t n_kwargs, const mp_obj_t* args);
-STATIC void Py${name}Attr(mp_obj_t self_in, qstr attr, mp_obj_t* dest);
-STATIC mp_obj_t Py${name}UnaryOp(mp_unary_op_t op, mp_obj_t value);
-STATIC mp_obj_t Py${name}BinaryOp(mp_binary_op_t op, mp_obj_t lhs, mp_obj_t rhs);
-STATIC mp_obj_t Py${name}Index(mp_obj_t self_in, mp_obj_t index, mp_obj_t value);
+static mp_obj_t PyMake${name}(${type_name} value);
+static mp_obj_t Py${name}Init(const mp_obj_type_t* type, size_t n_args, size_t, size_t n_kwargs, const mp_obj_t* args);
+static void Py${name}Attr(mp_obj_t self_in, qstr attr, mp_obj_t* dest);
+static mp_obj_t Py${name}UnaryOp(mp_unary_op_t op, mp_obj_t value);
+static mp_obj_t Py${name}BinaryOp(mp_binary_op_t op, mp_obj_t lhs, mp_obj_t rhs);
+static mp_obj_t Py${name}Index(mp_obj_t self_in, mp_obj_t index, mp_obj_t value);
 """
 cpp_custom_type_source_declaration_template = """
-struct Py${name} : public Tiny::Scripting::Utilities::TIPythonObjectType<${type_name}> 
+struct Py${name} : public Hel::MicroPython::HIPythonObjectType<${type_name}> 
 { static const mp_obj_type_t PyType; };
-STATIC mp_obj_t PyMake${name}(${type_name} value);
-STATIC mp_obj_t Py${name}Init(const mp_obj_type_t* type, size_t n_args, size_t n_kwargs, size_t, const mp_obj_t* args);
-STATIC void Py${name}Attr(mp_obj_t self_in, qstr attr, mp_obj_t* dest);
-STATIC mp_obj_t Py${name}UnaryOp(mp_unary_op_t op, mp_obj_t value);
-STATIC mp_obj_t Py${name}BinaryOp(mp_binary_op_t op, mp_obj_t lhs, mp_obj_t rhs);
-STATIC mp_obj_t Py${name}Index(mp_obj_t self_in, mp_obj_t index, mp_obj_t value);
+static mp_obj_t PyMake${name}(${type_name} value);
+static mp_obj_t Py${name}Init(const mp_obj_type_t* type, size_t n_args, size_t n_kwargs, size_t, const mp_obj_t* args);
+static void Py${name}Attr(mp_obj_t self_in, qstr attr, mp_obj_t* dest);
+static mp_obj_t Py${name}UnaryOp(mp_unary_op_t op, mp_obj_t value);
+static mp_obj_t Py${name}BinaryOp(mp_binary_op_t op, mp_obj_t lhs, mp_obj_t rhs);
+static mp_obj_t Py${name}Index(mp_obj_t self_in, mp_obj_t index, mp_obj_t value);
 """
-cpp_custom_type_converter = "template <> struct TIPyTypeMap<Tiny::CleanBaseType<${type_name}>> { using Value = Py${name}; };"
-cpp_custom_type_subscript_template = "if (TIPyType<${type_name}>::Is(${index_type})) return Subscript<${self_type}, ${index_type}, ${return_type}>(self, index, value);"
-cpp_custom_type_unary_op_template = "case MP_UNARY_OP_${name}: return TIPyType<${return_type}>::To(${unary_op}self->Value);"
+cpp_custom_type_converter = "template <> struct HIPyTypeMap<Hel::MicroPython::CleanBaseType<${type_name}>> { using Value = Py${name}; };"
+cpp_custom_type_subscript_template = "if (HIPyType<${type_name}>::Is(${index_type})) return Subscript<${self_type}, ${index_type}, ${return_type}>(self, index, value);"
+cpp_custom_type_unary_op_template = "case MP_UNARY_OP_${name}: return HIPyType<${return_type}>::To(${unary_op}self->Value);"
 cpp_custom_type_unary_op_template_map = {
     "+": apply_placeholders(cpp_custom_type_unary_op_template, False, name="POSITIVE", unary_op="+"),
     "-": apply_placeholders(cpp_custom_type_unary_op_template, False, name="NEGATIVE", unary_op="-"),
     "~": apply_placeholders(cpp_custom_type_unary_op_template, False, name="INVERT", unary_op="~"),
-    "bool": "case MP_UNARY_OP_BOOL: return Tiny:IsValid(self->Value) ? mp_const_true : mp_const_false;",
-    "hash": "case MP_UNARY_OP_HASH: return MP_OBJ_NEW_SMALL_INT(Tiny::HashCode(self->Value));"
+    "bool": "case MP_UNARY_OP_BOOL: return Hel::MicroPython::IsValid(self->Value) ? mp_const_true : mp_const_false;",
+    "hash": "case MP_UNARY_OP_HASH: return MP_OBJ_NEW_SMALL_INT(Hel::MicroPython::HashCode(self->Value));"
 }
 cpp_custom_type_binary_op_name_map = {"+" : "ADD", "-" : "SUBTRACT", "*" : "MULTIPLY", "/" : "TRUE_DIVIDE", "//" : "FLOOR_DIVIDE", "%" : "MODULO",
                                       "**" : "POWER", "<<" : "LSHIFT", ">>" : "RSHIFT", "&" : "AND", "|" : "OR", "^" : "XOR", "+=" : "INPLACE_ADD",
@@ -394,13 +394,13 @@ case MP_BINARY_OP_${name}:
     break;
 """
 cpp_custom_type_binary_op_overload = """
-if (TIPyType<${type}>::Is(rhsObj))
+if (HIPyType<${type}>::Is(rhsObj))
 {
-    auto rhs = TIPyType<${type}>::From(rhsObj);
+    auto rhs = HIPyType<${type}>::From(rhsObj);
     ${binary_op:keep_indent,empty_no_line}
 }"""
 cpp_custom_type_binary_op_bool_template = "return lhs->Value ${op} rhs ? mp_const_true : mp_const_false;"
-cpp_custom_type_binary_op_value_template = "return TIPyType<${return_type}>::To(lhs->Value ${op} rhs);"
+cpp_custom_type_binary_op_value_template = "return HIPyType<${return_type}>::To(lhs->Value ${op} rhs);"
 cpp_custom_type_binary_op_input_value_template = "lhs->Value ${op}= rhs; return lhsObj;"
 cpp_custom_type_binary_op_template_map = {
     "==": apply_placeholders(cpp_custom_type_binary_op_bool_template, False, op="=="), "!=": apply_placeholders(cpp_custom_type_binary_op_bool_template, False, op="!="),
@@ -421,12 +421,12 @@ cpp_custom_type_binary_op_template_map = {
 }
 cpp_custom_type_base = "&Py${parent_type}::PyType"
 cpp_custom_type_bases = """
-STATIC const mp_obj_type_t* Py${type_name}Bases[] =
+static const mp_obj_type_t* Py${type_name}Bases[] =
 {
     ${base_list:keep_indent,empty_no_line}
 };
 
-STATIC mp_obj_tuple_t Py${type_name}BasesTuple =
+static mp_obj_tuple_t Py${type_name}BasesTuple =
 {
     .base = {&mp_type_tuple},
     .len = ${base_count},
@@ -442,15 +442,15 @@ cpp_custom_type_base_attr = "Py${parent_type}Attr(self_in, attr, dest);"
 cpp_custom_type_base_unary_op = "if (auto result = Py${parent_type}UnaryOp(op, value); result != MP_OBJ_NULL) return result;"
 cpp_custom_type_base_binary_op = "if (auto result = Py${parent_type}BinaryOp(op, lhsObj, rhsObj); result != MP_OBJ_NULL) return result;"
 cpp_custom_type_base_subscript = "if (auto result = Py${parent_type}Index(self_in, index, value); result != MP_OBJ_NULL) return result;"
-cpp_custom_type_getter_template = "if (attr == MP_QSTR_${py_name}) dest[0] = TIPyType<${type}>::To(self->Value${ref_or_ptr}${value});"
-cpp_custom_type_setter_template = "if (attr == MP_QSTR_${py_name}) { self->Value${ref_or_ptr}${value} = TIPyType<${type}>::From(dest[1]); return; }"
+cpp_custom_type_getter_template = "if (attr == MP_QSTR_${py_name}) dest[0] = HIPyType<${type}>::To(self->Value${ref_or_ptr}${value});"
+cpp_custom_type_setter_template = "if (attr == MP_QSTR_${py_name}) { self->Value${ref_or_ptr}${value} = HIPyType<${type}>::From(dest[1]); return; }"
 #cpp_custom_type_attr_getter_template = "if (attr == MP_QSTR_${name}) { ${attr_getter_code}; dest[0] = value; }"
 #cpp_custom_type_attr_setter_template = "if (attr == MP_QSTR_${name}) { ${attr_setter_code}; ${value} = value; dest[0] = MP_OBJ_NULL; }"
 cpp_custom_type_owned_constructor = """
 new (&self->Value) ${namespace}${type_name}(${args});
 """
 cpp_custom_type_owned_init = """
-STATIC mp_obj_t Py${type_name}Init(const mp_obj_type_t* type, size_t n_args, size_t n_kwargs, size_t, const mp_obj_t* args)
+static mp_obj_t Py${type_name}Init(const mp_obj_type_t* type, size_t n_args, size_t n_kwargs, size_t, const mp_obj_t* args)
 {
     auto* self = mp_obj_malloc(Py${type_name}, type);
     ${constructors:keep_indent,empty_no_line}
@@ -459,32 +459,32 @@ STATIC mp_obj_t Py${type_name}Init(const mp_obj_type_t* type, size_t n_args, siz
 }
 """
 cpp_custom_type_unowned_init = """
-STATIC mp_obj_t Py${type_name}Init(const mp_obj_type_t* type, size_t n_args, size_t n_kwargs, size_t, const mp_obj_t* args)
+static mp_obj_t Py${type_name}Init(const mp_obj_type_t* type, size_t n_args, size_t n_kwargs, size_t, const mp_obj_t* args)
 {
     mp_raise_TypeError("Constructing ${type_name} not allowed${factory}!");
 }
 """
 cpp_custom_type_owned_destroy_entry = "{MP_ROM_QSTR(MP_QSTR___del__), MP_ROM_PTR(&Py${type_name}DestroyObj)},"
 cpp_custom_type_owned_destroy = """
-STATIC mp_obj_t Py${type_name}Destroy(mp_obj_t self_in)
+static mp_obj_t Py${type_name}Destroy(mp_obj_t self_in)
 {
     auto* self = static_cast<Py${type_name}*>(MP_OBJ_TO_PTR(self_in));
     self->Value.~${type_name}();
     return mp_const_none;
 }
-//STATIC MP_DEFINE_CONST_FUN_OBJ_1(Py${type_name}DestroyObj, Py${type_name}Destroy);
-STATIC const mp_obj_fun_builtin_fixed_t Py${type_name}DestroyObj = {{&mp_type_fun_builtin_1}, .fun = {._1 = Py${type_name}Destroy}};
+//static MP_DEFINE_CONST_FUN_OBJ_1(Py${type_name}DestroyObj, Py${type_name}Destroy);
+static const mp_obj_fun_builtin_fixed_t Py${type_name}DestroyObj = {{&mp_type_fun_builtin_1}, .fun = {._1 = Py${type_name}Destroy}};
 """
 cpp_custom_type_source_template = """
 ${make_new:empty_no_line,keep_indent}
 ${destroy:empty_no_line,keep_indent}
 
-STATIC mp_obj_t PyMake${name}(${type_name} value)
+static mp_obj_t PyMake${name}(${type_name} value)
 {
-    return TIPyType<${type_name}>::To(value);
+    return HIPyType<${type_name}>::To(value);
 }
 
-STATIC void Py${name}Attr(mp_obj_t self_in, qstr attr, mp_obj_t* dest)
+static void Py${name}Attr(mp_obj_t self_in, qstr attr, mp_obj_t* dest)
 {
     auto* self = static_cast<Py${name}*>(MP_OBJ_TO_PTR(self_in));
     if (dest[0] == MP_OBJ_NULL)
@@ -501,7 +501,7 @@ STATIC void Py${name}Attr(mp_obj_t self_in, qstr attr, mp_obj_t* dest)
     }
 }
 
-STATIC mp_obj_t Py${name}UnaryOp(mp_unary_op_t op, mp_obj_t value)
+static mp_obj_t Py${name}UnaryOp(mp_unary_op_t op, mp_obj_t value)
 {
     auto* self = static_cast<Py${name}*>(MP_OBJ_TO_PTR(value));
     switch (op)
@@ -514,7 +514,7 @@ STATIC mp_obj_t Py${name}UnaryOp(mp_unary_op_t op, mp_obj_t value)
     return MP_OBJ_NULL;
 }
 
-STATIC mp_obj_t Py${name}BinaryOp(mp_binary_op_t op, mp_obj_t lhsObj, mp_obj_t rhsObj)
+static mp_obj_t Py${name}BinaryOp(mp_binary_op_t op, mp_obj_t lhsObj, mp_obj_t rhsObj)
 {
     auto* lhs = static_cast<Py${name}*>(MP_OBJ_TO_PTR(lhsObj));
     switch (op)
@@ -526,7 +526,7 @@ STATIC mp_obj_t Py${name}BinaryOp(mp_binary_op_t op, mp_obj_t lhsObj, mp_obj_t r
     return MP_OBJ_NULL;
 }
 
-STATIC mp_obj_t Py${name}Index(mp_obj_t self_in, mp_obj_t index, mp_obj_t value)
+static mp_obj_t Py${name}Index(mp_obj_t self_in, mp_obj_t index, mp_obj_t value)
 {
     auto* self = static_cast<Py${name}*>(MP_OBJ_TO_PTR(self_in));
     ${subscripts:keep_indent,empty_no_line}
@@ -536,14 +536,14 @@ STATIC mp_obj_t Py${name}Index(mp_obj_t self_in, mp_obj_t index, mp_obj_t value)
 
 ${functions:empty_no_line}
 
-STATIC const mp_rom_map_elem_t Py${name}DictTable[] =
+static const mp_rom_map_elem_t Py${name}DictTable[] =
 {
     ${destroy_entry:keep_indent,empty_no_line}
     ${type_constants:keep_indent,empty_no_line}
     ${type_functions:keep_indent,empty_no_line}
 };
 ${bases_tuple_def:empty_no_line}
-STATIC MP_DEFINE_CONST_DICT(Py${name}Dict, Py${name}DictTable);
+static MP_DEFINE_CONST_DICT(Py${name}Dict, Py${name}DictTable);
 //MP_DEFINE_CONST_OBJ_TYPE(Py${name}Type, MP_QSTR_${py_type_name}, MP_TYPE_FLAG_NONE, make_new, Py${name}Init,
 //                         unary_op, Py${name}UnaryOp, binary_op, Py${name}BinaryOp, attr, Py${name}Attr,
 //                         subscr, Py${name}Index, locals_dict, &Py${name}Dict${bases_tuple_entry});
@@ -565,32 +565,32 @@ cpp_module_constant_template = "{MP_ROM_QSTR(MP_QSTR_${py_name}), MP_ROM_${type}
 cpp_module_function_template = "{MP_ROM_QSTR(MP_QSTR_${py_name}), MP_ROM_PTR(&Py${name}Obj)},"
 cpp_module_type_template = "{MP_ROM_QSTR(MP_QSTR_${py_name}), MP_ROM_PTR(&Py${name}::PyType)},"
 cpp_module_submodule_template = "{MP_ROM_QSTR(MP_QSTR_${py_name}), MP_ROM_PTR(&Py${name}UserModule)},"
-cpp_module_variable_getter_template = "if (attr == MP_QSTR_${py_name}) return TIPyType<${type}>::To(${value});"
-cpp_module_variable_setter_template = "if (attr == MP_QSTR_${py_name}) { ${value} = TIPyType<${type}>::From(value); return mp_const_none; }"
+cpp_module_variable_getter_template = "if (attr == MP_QSTR_${py_name}) return HIPyType<${type}>::To(${value});"
+cpp_module_variable_setter_template = "if (attr == MP_QSTR_${py_name}) { ${value} = HIPyType<${type}>::From(value); return mp_const_none; }"
 cpp_module_template = """
 ${functions:keep_indent,empty_no_line}
 
 ${types:keep_indent,empty_no_line}
-STATIC mp_obj_t Py${module_name}GetAttr(mp_obj_t self_in, mp_obj_t attr_obj)
+static mp_obj_t Py${module_name}GetAttr(mp_obj_t self_in, mp_obj_t attr_obj)
 {
     auto attr = mp_obj_str_get_qstr(attr_obj);
     ${module_variable_getters:keep_indent,empty_no_line}
     return mp_load_attr(self_in, attr);
 }
-//STATIC MP_DEFINE_CONST_FUN_OBJ_2(Py${module_name}GetAttrObj, Py${module_name}GetAttr);
-STATIC const mp_obj_fun_builtin_fixed_t Py${module_name}GetAttrObj = {{&mp_type_fun_builtin_2}, .fun = {._2 = Py${module_name}GetAttr}};
+//static MP_DEFINE_CONST_FUN_OBJ_2(Py${module_name}GetAttrObj, Py${module_name}GetAttr);
+static const mp_obj_fun_builtin_fixed_t Py${module_name}GetAttrObj = {{&mp_type_fun_builtin_2}, .fun = {._2 = Py${module_name}GetAttr}};
 
-STATIC mp_obj_t Py${module_name}SetAttr(mp_obj_t self_in, mp_obj_t attr_obj, mp_obj_t value)
+static mp_obj_t Py${module_name}SetAttr(mp_obj_t self_in, mp_obj_t attr_obj, mp_obj_t value)
 {
     auto attr = mp_obj_str_get_qstr(attr_obj);
     ${module_variable_setters:keep_indent,empty_no_line}
     mp_store_attr(self_in, attr, value);
     return mp_const_none;
 }
-//STATIC MP_DEFINE_CONST_FUN_OBJ_3(Py${module_name}SetAttrObj, Py${module_name}SetAttr);
-STATIC const mp_obj_fun_builtin_fixed_t Py${module_name}SetAttrObj = {{&mp_type_fun_builtin_3}, .fun = {._3 = Py${module_name}SetAttr}};
+//static MP_DEFINE_CONST_FUN_OBJ_3(Py${module_name}SetAttrObj, Py${module_name}SetAttr);
+static const mp_obj_fun_builtin_fixed_t Py${module_name}SetAttrObj = {{&mp_type_fun_builtin_3}, .fun = {._3 = Py${module_name}SetAttr}};
 
-STATIC const mp_rom_map_elem_t Py${module_name}ModuleGlobalsTable[] =
+static const mp_rom_map_elem_t Py${module_name}ModuleGlobalsTable[] =
 {
     {MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_${py_module_name})},
     {MP_ROM_QSTR(MP_QSTR___getattr__), MP_ROM_PTR(&Py${module_name}GetAttrObj)},
@@ -601,7 +601,7 @@ STATIC const mp_rom_map_elem_t Py${module_name}ModuleGlobalsTable[] =
     ${module_types:keep_indent,empty_no_line}
 };
 
-STATIC MP_DEFINE_CONST_DICT(Py${module_name}ModuleGlobals, Py${module_name}ModuleGlobalsTable);
+static MP_DEFINE_CONST_DICT(Py${module_name}ModuleGlobals, Py${module_name}ModuleGlobalsTable);
 const mp_obj_module_t Py${module_name}UserModule =
 {
     .base = {&mp_type_module},
