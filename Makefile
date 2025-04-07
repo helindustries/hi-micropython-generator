@@ -26,9 +26,6 @@ clean: clean-python-exec | silent
 cfg: cfg-python | silent
 	@
 
-wnk: cfg-python | silent
-	@
-
 PYTHON_FILES := $(wildcard */*.py */*/*.py */*/*/*.py)
 PYTHON_FILES_TIMESTAMP := $(PYTHON_FILES:%.py=$(BUILD_DIR)/%.build)
 
