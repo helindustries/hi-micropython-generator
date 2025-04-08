@@ -31,7 +31,7 @@ PYTHON_FILES_TIMESTAMP := $(PYTHON_FILES:%.py=$(BUILD_DIR)/%.build)
 
 PYTHON_TARGET = micropython_api_generator
 PYTHON_EXEC_PATHS = ../..
-BUILD_DIR ?= $(patsubst %/,%,$(abspath $(dir $(lastword $(MAKEFILE_LIST)))/build))
+BUILD_DIR ?= $(patsubst %/,%,$(abspath $(shell pwd)/build))
 VERBOSE = 1
 
 include ../../../Config/BuildSystem.mk
