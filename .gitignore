@@ -1,8 +1,6 @@
-
 .DS_Store
 
 micropython_generator/__pycache__/
-
 bin/
-
 build/
+dist/
