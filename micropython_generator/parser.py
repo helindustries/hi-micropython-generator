@@ -1,4 +1,4 @@
-#  Copyright 2023 Hel Industries, all rights reserved.
+#  Copyright 2023-2025 $author, All rights reserved.
 #
 #  For licensing terms, Please find the licensing terms in the closest
 #  LICENSE.txt file in this repository going up the directory tree.
