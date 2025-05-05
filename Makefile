@@ -41,6 +41,6 @@ build-python-timestamps: $(PYTHON_BUILD_TIMESTAMP)
 	@
 
 $(PYTHON_BUILD_TIMESTAMP): $(PYTHON_FILES) build-python
-	$(V)touch $@
+	$(V)$(TOUCH) $@
 
 .PHONY: all install test clean cfg build-python-timestamps

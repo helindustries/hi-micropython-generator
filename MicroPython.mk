@@ -37,17 +37,17 @@ MICROPYTHON_CPPFLAGS := $(CPPFLAGS) $(INCLUDE_PATHS:%-I%)
 $(MICROPYTHON_BUILD_REFERENCE_PATH): $(PYTHON_MODULE_C_FILES) $(PYTHON_MODULE_CPP_FILES) $(PYTHON_MODULE_HEADERS)
 	@$(MSG) "[GEN]" "$(CPU_TARGET)" "Modules"
 	$(V)$(MAKE) --file=$(MICROPYTHON_SOURCE_PATH)/ports/embed/embed.mk V=$(VERBOSE) "ECHO=@$(ECHO)" "MICROPYTHON_TOP=$(MICROPYTHON_SOURCE_PATH)" "PACKAGE_DIR=$(MICROPYTHON_DIR)" "USER_C_MODULES=$(MICROPYTHON_MODULES)" "CFLAGS_USERMOD=$(CFLAGS) $(MICROPYTHON_CPPFLAGS)" "CXXFLAGS_USERMOD=$(CXXFLAGS) $(MICROPYTHON_CPPFLAGS)" "LDFLAGS_USERMOD=$(LDFLAGS)" "CC=$(CC)" "CXX=$(CXX)" all
-	$(V)rm -f ./*.d
-	$(V)touch "$@"
+	$(V)$(RM) *.d
+	$(V)$(TOUCH) "$@"
 
 python-modules: $(MICROPYTHON_BUILD_REFERENCE_PATH) $(PYTHON_MODULE_C_FILES) $(PYTHON_MODULE_CPP_FILES) $(PYTHON_MODULE_HEADERS)
-	@if ls ./*.d > /dev/null 2>&1; then rm -f ./*.d; fi
+	$(V)$(RM) *.d
 
 clean-python-modules:
 	@$(MSG) "[CLEAN]" "$(CPU_TARGET)" "MicroPython"
-	$(V)rm -fr "$(MICROPYTHON_DIR)"
-	$(V)rm -fr "$(MICROPYTHON_BUILD_DIR)"
-	@if ls ./*.d > /dev/null 2>&1; then rm -f ./*.d; fi
+	$(V)$(RMDIR) "$(MICROPYTHON_DIR)"
+	$(V)$(RMDIR) "$(MICROPYTHON_BUILD_DIR)"
+	$(V)$(RM) *.d
 
 cfg-python-modules:
 	@$(MSG) "[CFG]" "$(CPU_TARGET)" "MicroPython"
