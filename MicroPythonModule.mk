@@ -5,8 +5,10 @@
 #
 
 MICROPYTHON_API_GENERATOR_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-ifeq ($(strip $(shell ls --color=never $(MAKE_INC_PATH) 2>/dev/null)),)
-    # Lets add these, so the makefile can be used standalone
+ifneq ($(strip $(PLATFORM_UTILS_PRESENT)),yes)
+    # If PLATFORM_UTILS_PRESENT is set, we are building against the makefile-based hybrid build system,
+    # otherwise we need to solve a few dependencies here so it is stand-alone.
+	include $(BUFFER_PREPROCESSOR_DIR)/PlatformUtils/PlatformUtils.mk
     ifneq ($(strip $(PYTHON_ADDITIONAL_PATHS)),)
         PYTHON_ENV ?= PYTHONPATH="$(PYTHON_ADDITIONAL_PATHS)"
     endif
