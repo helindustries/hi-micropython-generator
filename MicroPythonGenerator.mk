@@ -12,7 +12,7 @@ MICROPYTHON_API_GENERATOR_DIR := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 ifneq ($(strip $(PLATFORM_UTILS_PRESENT)),yes)
     # If PLATFORM_UTILS_PRESENT is set, we are building against the makefile-based hybrid build system,
     # otherwise we need to solve a few dependencies here so it is stand-alone.
-	include $(BUFFER_PREPROCESSOR_DIR)/PlatformUtils/PlatformUtils.mk
+	include $(MICROPYTHON_API_GENERATOR_DIR)/PlatformUtils/PlatformUtils.mk
     CFGMSG := printf "    %-30s %s\n"
     VCFGMSG = printf "  %-9s %s\n"
     MSG := /usr/bin/true
