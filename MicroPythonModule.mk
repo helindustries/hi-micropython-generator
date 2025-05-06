@@ -12,7 +12,7 @@ ifneq ($(strip $(PLATFORM_UTILS_PRESENT)),yes)
     ifneq ($(strip $(PYTHON_ADDITIONAL_PATHS)),)
         PYTHON_ENV ?= PYTHONPATH="$(PYTHON_ADDITIONAL_PATHS)"
     endif
-    PYTHON := $(PYTHON_ENV) python
+    PYTHON ?= $(PYTHON_ENV) python
     CFGMSG := printf "    %-30s %s\n"
     MSG := /usr/bin/true
 else
